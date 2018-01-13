@@ -31,19 +31,24 @@ namespace BOOM {
 
 		//}
 
-		//public string[] Elements()
-		//{
-
-		//}
-
-		//private List<string> InOrder(TernaryNode node, int depth)
-		//{
 
 
+		private List<string> InOrder(string history, TernaryNode node, int depth) {
+			if (node==null)
+				return new List<string>();
+			if (depth==length)
+				return new List<string>() { history };
 
-		//}
+			List<string> result = new List<string>();
+			result.AddRange(InOrder(history+"0", node.Left ,depth+1));
+			result.AddRange(InOrder(history+"-", node.Middle, depth+1));
+			result.AddRange(InOrder(history+"1", node.Right, depth+1));
+			return result;
+		}
 
-
+		public string[] GetElements() {
+			return InOrder("", root, 0).ToArray();
+		}
 
 		/// <summary>
 		/// Добавляет элемент в дерево
@@ -82,7 +87,8 @@ namespace BOOM {
 					throw new ArgumentException("Строка иммет неверный символ.");
 				}
 			}
-			Count++;
+			if (result)
+				Count++;
 			return result;
 		}
 

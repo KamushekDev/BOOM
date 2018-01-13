@@ -49,7 +49,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Test1.in" />
+    <None Include="Tests\Test1.in" />
+    <None Include="Tests\Test2.in" />
+    <None Include="Tests\Test3.in" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
