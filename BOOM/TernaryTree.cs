@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace BOOM {
 
-	public class TernaryTree {
+	public class TernaryTree//:ICloneable
+	{
 
 		private TernaryNode root;
 
@@ -14,38 +15,66 @@ namespace BOOM {
 
 		public int Count { get; set; }
 
+		//public object Clone()
+		//{
+		//    TernaryTree result = new TernaryTree(length);
+		//    string[] currentTree;//todo
+
+
+
+
+		//}
+
+		//public string[] Elements()
+		//{
+
+		//}
+
+		//private List<string> InOrder(TernaryNode node, int depth)
+		//{
+
+
+
+		//}
+
+		/*
+         *    node
+         *   / | \
+         *  0  -  1 
+         */
+
 		/// <summary>
 		/// Добавляет элемент в дерево
 		/// </summary>
 		/// <param name="input">Входная строка</param>
 		/// <returns>true если элемент ранее не содержался</returns>
 		public bool Add(string input) {
-			if (input.Length!=length)
+			if (input.Length != length)
 				throw new ArgumentException(String.Format("Строка имеет длинну {0}, а должна быть длинной в {1} символов.", input.Length, length));
 			bool result = false;
 			TernaryNode buffer = root;
 			foreach (char a in input) {
 				switch (a) {
 				case '0':
-					if (buffer.Left==null) {
-						result=true;
-						buffer.Left=new TernaryNode();
+					if (buffer.Left == null) {
+						result = true;
+						buffer.Left = new TernaryNode();
 					}
-					buffer=buffer.Left;
+					buffer = buffer.Left;
 					break;
 				case '-':
-					if (buffer.Middle==null) {
-						result=true;
-						buffer.Middle=new TernaryNode();
+					if (buffer.Middle == null) {
+						result = true;
+						buffer.Middle = new TernaryNode();
 					}
-					buffer=buffer.Middle;
+					buffer = buffer.Middle;
 					break;
 				case '1':
-					if (buffer.Right==null) {
-						result=true;
-						buffer.Right=new TernaryNode();
+					if (buffer.Right == null) {
+						result = true;
+						buffer.Right = new TernaryNode();
 					}
-					buffer=buffer.Right;
+					buffer = buffer.Right;
 					break;
 				default:
 					throw new ArgumentException("Строка иммет неверный символ.");
@@ -55,10 +84,91 @@ namespace BOOM {
 			return result;
 		}
 
+		public bool Remove(string input) {
+			if (input.Length != length)
+				throw new ArgumentException(String.Format("Строка имеет длинну {0}, а должна быть длинной в {1} символов.", input.Length, length));
+			long depth = 1;
+			TernaryNode buffer = root;
+			foreach (char c in input) {
+				switch (c) {
+				case '0':
+					if (buffer.Left == null)
+						throw new ArgumentException("Строка не содержится.");
+					buffer = buffer.Left;
+					if (depth == length - 1) {
+						buffer.Left = null;
+						Count--;
+						return true;
+					}
+					break;
+				case '-':
+					if (buffer.Middle == null)
+						throw new ArgumentException("Строка не содержится.");
+					buffer = buffer.Middle;
+					if (depth == length - 1) {
+						buffer.Middle = null;
+						Count--;
+						return true;
+					}
+					break;
+				case '1':
+					if (buffer.Right == null)
+						throw new ArgumentException("Строка не содержится.");
+					buffer = buffer.Right;
+					if (depth == length - 1) {
+						buffer.Right = null;
+						Count--;
+						return true;
+					}
+					break;
+				default:
+					throw new ArgumentException("Строка содержит недопустимые символы.");
+				}
+				depth++;
+			}
+			return false;
+		}
+
+		public bool Contains(string input) {
+			if (input.Length != length)
+				throw new ArgumentException(String.Format("Строка имеет длинну {0}, а должна быть длинной в {1} символов.", input.Length, length));
+			long depth = 1;
+			TernaryNode buffer = root;
+			foreach (char c in input) {
+				switch (c) {
+				case '0':
+					if (buffer.Left == null)
+						return false;
+					buffer = buffer.Left;
+					if (depth == length)
+						return true;
+					break;
+				case '-':
+					if (buffer.Middle == null)
+						return false;
+					buffer = buffer.Middle;
+					if (depth == length)
+						return true;
+					break;
+				case '1':
+					if (buffer.Right == null)
+						return false;
+					buffer = buffer.Right;
+					if (depth == length)
+						return true;
+					break;
+				default:
+					throw new ArgumentException("Строка содержит недопустимые символы.");
+				}
+				depth++;
+			}
+			return false;
+		}
+
 		public TernaryTree(int _length) {
-			length=_length;
-			Count=0;
-			root=new TernaryNode();
+			length = _length;
+			Count = 0;
+			root = new TernaryNode();
 		}
 
 	}
@@ -70,9 +180,9 @@ namespace BOOM {
 		public TernaryNode Right { get; set; }
 
 		public TernaryNode() {
-			Left=null;
-			Middle=null;
-			Right=null;
+			Left = null;
+			Middle = null;
+			Right = null;
 		}
 
 
