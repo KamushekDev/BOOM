@@ -8,6 +8,11 @@ namespace BOOM {
 
 	public class TernaryTree//:ICloneable
 	{
+		/*
+		*    node
+		*   / | \
+		*  0  -  1 
+		*/
 
 		private TernaryNode root;
 
@@ -15,6 +20,7 @@ namespace BOOM {
 
 		public int Count { get; set; }
 
+		//А нужно ли???
 		//public object Clone()
 		//{
 		//    TernaryTree result = new TernaryTree(length);
@@ -37,11 +43,7 @@ namespace BOOM {
 
 		//}
 
-		/*
-         *    node
-         *   / | \
-         *  0  -  1 
-         */
+
 
 		/// <summary>
 		/// Добавляет элемент в дерево
