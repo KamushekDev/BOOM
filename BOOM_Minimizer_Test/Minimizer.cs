@@ -7,8 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace BOOM_Minimizer_Test {
-	public class Minimizer {
+	public class Minimizer: IDisposable {
 		Random rand = new Random();
+
+		private int secondsForCDSearch = 30;
 
 		public List<string> True { get; set; }
 		public List<string> False { get; set; }
@@ -16,7 +18,13 @@ namespace BOOM_Minimizer_Test {
 
 		public List<string> ExpansionBuffer { get; set; }
 
+		private Form1 mainForm;
+
 		public int Length { get; set; }
+
+		public void Dispose() {
+			ImplicantBuffer.Dispose();
+		}
 
 		private void ReadFunction(string path) {
 			int length = 0;
@@ -62,9 +70,9 @@ namespace BOOM_Minimizer_Test {
 
 		private void CD_Search() {
 			long iteration = 0, ellapsedIterations = 0, lastChangeIteration = 0, implicantsCount = 0;
-			DateTime startTime=DateTime.Now;
+			DateTime startTime = DateTime.Now;
 			while (true) {
-				if (ellapsedIterations==long.MaxValue||iteration==long.MaxValue||(DateTime.Now-startTime).TotalSeconds>30)
+				if (ellapsedIterations==long.MaxValue||iteration==long.MaxValue||(DateTime.Now-startTime).TotalSeconds>secondsForCDSearch)
 					break;
 				iteration++; ellapsedIterations++;
 				CD_SearchOnce();
@@ -191,12 +199,14 @@ namespace BOOM_Minimizer_Test {
 			}
 		}
 
-		public Minimizer(string pathToFile) {
+		public Minimizer(string pathToFile, Form1 _mainForm, int seconds) {
 			True = new List<string>();
 			False = new List<string>();
 			ReadFunction(pathToFile);
 			ImplicantBuffer=new TernaryTree(Length);
 			ExpansionBuffer=new List<string>();
+			this.mainForm=_mainForm;
+			secondsForCDSearch=seconds;
 		}
 
 		private void ImplicantExpansion() {//Последовательное расширение
@@ -291,30 +301,11 @@ namespace BOOM_Minimizer_Test {
 		public async Task<string> StartAsync() {//todo Асинхронный вызов
 			Console.WriteLine("Функция от {0} переменных с {1} определёнными мидтермами.", Length, True.Count+False.Count);
 			await Task.Run(() => CD_Search());
+			mainForm.Invoke((Action)delegate { mainForm.UpdateFI(ExpansionBuffer.Count); });
 			await Task.Run(() => ImplicantExpansion());
-			Console.WriteLine("Сгенерировано {0} прост{1} импликант{2}.", ExpansionBuffer.Count, EndingSimple(ExpansionBuffer.Count), EndingImplicant(ExpansionBuffer.Count));
+			mainForm.Invoke((Action)delegate { mainForm.UpdatePI(ExpansionBuffer.Count); });
 			string result = await Task.Run<string>(() => { return SolveCoveringProblem(); });
 			return result;
-
-			string EndingImplicant(long number) {
-				if (number%100>10&&number%100<20||number%10>=5&&number%10<=9||number%10==0)
-					return "";
-				if (number%10>=2&&number%10<=4)
-					return "ы";
-				if (number%10==1)
-					return "а";
-				return "";
-			}
-
-			string EndingSimple(long number) {
-				if (number%100>10&&number%100<20||number%10>=5&&number%10<=9||number%10==0)
-					return "ых";
-				if (number%10>=2&&number%10<=4)
-					return "ые";
-				if (number%10==1)
-					return "ая";
-				return "";
-			}
 		}
 
 	}

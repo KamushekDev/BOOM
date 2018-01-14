@@ -6,13 +6,17 @@ using System.Threading.Tasks;
 
 namespace BOOM_Minimizer_Test {
 
-	public class TernaryTree
-	{
+	public class TernaryTree: IDisposable {
 		/*
 		*    node
 		*   / | \
 		*  0  -  1 
 		*/
+
+		public void Dispose() {
+			root=null;
+			GC.Collect();
+		}
 
 		private TernaryNode root;
 
@@ -27,7 +31,7 @@ namespace BOOM_Minimizer_Test {
 				return new List<string>() { history };
 
 			List<string> result = new List<string>();
-			result.AddRange(InOrder(history+"0", node.Left ,depth+1));
+			result.AddRange(InOrder(history+"0", node.Left, depth+1));
 			result.AddRange(InOrder(history+"-", node.Middle, depth+1));
 			result.AddRange(InOrder(history+"1", node.Right, depth+1));
 			return result;

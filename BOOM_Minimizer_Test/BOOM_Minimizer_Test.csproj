@@ -76,6 +76,15 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Tests\Test1.in" />
+    <None Include="Tests\Test2.in" />
+    <None Include="Tests\Test3.in" />
+    <None Include="Tests\Test4.in" />
+    <None Include="Tests\Test5.in" />
+    <None Include="Tests\Test6.in" />
+    <None Include="Tests\Test7.in" />
+    <None Include="Tests\Test8.in" />
+    <None Include="Tests\Test9.in" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
