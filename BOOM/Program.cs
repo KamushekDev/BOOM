@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace BOOM {
 	class Program {
 		static void Main(string[] args) {
-			
+
 			Console.Write("Номер теста: ");
 			int number = int.Parse(Console.ReadLine());
 
@@ -17,7 +17,7 @@ namespace BOOM {
 
 			minimizer.CD_Search();
 
-			Console.WriteLine("Содержит {0} импликант. Различных из них {1}", minimizer.H.Count, minimizer.H.GetElements().Distinct().Count());
+			Console.WriteLine("Содержит {0} импликант.", minimizer.H.Count);
 
 			Console.ReadKey();
 		}

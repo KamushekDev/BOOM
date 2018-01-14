@@ -60,6 +60,7 @@ namespace BOOM {
 					lastChangeIteration=iteration;
 					ellapsedIterations=0;
 					implicantsCount=H.Count;
+					iteration=0;
 				}
 				if (ellapsedIterations/2>lastChangeIteration)
 					break;
