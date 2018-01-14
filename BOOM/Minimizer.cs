@@ -75,7 +75,7 @@ namespace BOOM {
 					implicantsCount=ImplicantBuffer.Count;
 					iteration=0;
 				}
-				if (ellapsedIterations/2>lastChangeIteration)
+				if (ellapsedIterations/3>lastChangeIteration)
 					break;
 			}
 			void CD_SearchOnce() {
@@ -225,18 +225,62 @@ namespace BOOM {
 		private string SolveCoveringProblem() {
 			List<string> trueReduced = True.ToList();
 			SortedList<string, int> implicantsCovering = new SortedList<string, int>();
+			List<string> resultCovering = new List<string>();
 			foreach (var str in ExpansionBuffer)
 				implicantsCovering.Add(str, CoveringTerms(str));
+			do {
+				int maximum = implicantsCovering.Max((z) => { return z.Value; });
+				for (int j = 0; j<implicantsCovering.Count; j++) {
+					if (implicantsCovering.ElementAt(j).Value==maximum) {
+						AddResult(implicantsCovering.ElementAt(j).Key);
+						ReduceTrue(trueReduced, implicantsCovering.ElementAt(j).Key);
+						implicantsCovering.RemoveAt(j--);
+						UpdateValues();
+					}
+				}
+			} while (trueReduced.Count>0);
 
+			StringBuilder result = new StringBuilder("");
+
+			for (int k=0;k<resultCovering.Count-1;k++){
+				result.Append(resultCovering[k]);
+				result.Append('+');
+			}
+			result.Append(resultCovering.Last());
+
+			return result.ToString();
+
+			void UpdateValues(){
+				for (int i = 0; i<implicantsCovering.Count; i++)
+					implicantsCovering[implicantsCovering.ElementAt(i).Key]=CoveringTerms(implicantsCovering.ElementAt(i).Key);
+			}
 
 			int CoveringTerms(string implicant) {
-				int result = 0;
+				int count = 0;
 				for (int i = 0; i<trueReduced.Count; i++) {
-
+					for (int k = 0; k<Length; k++) {
+						if (implicant[k]=='-'&&k!=Length-1)
+							continue;
+						if (implicant[k]!=trueReduced[i][k]&&implicant[k]!='-')
+							break;
+						if (k==Length-1)
+							count++;
+					}
 				}
-				return result;
+				return count;
 			}
-			return "RWESULT";
+
+			void AddResult(string implicant) {
+				StringBuilder sb = new StringBuilder("");
+				for (int i = 0; i<Length; i++)
+					if (implicant[i]!='-') {
+						if (implicant[i]=='0')
+							sb.Append('!');
+						sb.Append('X');
+						sb.Append(i);
+					}
+				resultCovering.Add(sb.ToString());
+			}
 		}
 
 		public async Task<string> StartAsync() {//todo Асинхронный вызов
