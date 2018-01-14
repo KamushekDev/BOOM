@@ -52,6 +52,16 @@ namespace BOOM {
 			return false;
 		}
 
+		private void ReduceTrue(List<string> trueReduced, string implicant) {
+			for (int i = 0; i<trueReduced.Count; i++)
+				for (int k = 0; k<implicant.Length; k++) {
+					if (implicant[k]!='-'&&implicant[k]!=trueReduced[i][k])
+						break;
+					if (k==implicant.Length-1)
+						trueReduced.RemoveAt(i--);
+				}
+		}
+
 		private void CD_Search() {
 			long iteration = 0, ellapsedIterations = 0, lastChangeIteration = 0, implicantsCount = 0;
 			while (true) {
@@ -87,24 +97,16 @@ namespace BOOM {
 				do {
 					t=new string(Enumerable.Repeat('-', Length).ToArray());
 					do {
+						if (!t.Contains('-'))
+							t=new string(Enumerable.Repeat('-', Length).ToArray());
 						t = MostFrequenceVariable();
 
 					} while (IntersectFalse(t));
-					ReduceTrue(t);
+					ReduceTrue(trueReduced, t);
 					if (ImplicantBuffer.Add(t))
 						ExpansionBuffer.Add(t);
 				} while (trueReduced.Count>0);
 				//todo вернуть H (сгенерированные импликанты)
-
-				void ReduceTrue(string implicant) {
-					for (int i = 0; i<trueReduced.Count; i++)
-						for (int k = 0; k<implicant.Length; k++) {
-							if (implicant[k]!='-'&&implicant[k]!=trueReduced[i][k])
-								break;
-							if (k==implicant.Length-1)
-								trueReduced.RemoveAt(i--);
-						}
-				}
 
 				string MergeTerms(string first, string second) {
 					if (first.Length!=second.Length)
@@ -126,10 +128,9 @@ namespace BOOM {
 				string MostFrequenceVariable() {
 					long max = -1;
 					int countMax = 0;
-					if (t==new string(Enumerable.Repeat('-', Length).ToArray()))
-						for (int i = 0; i<2; i++)
-							for (int k = 0; k<Length; k++)
-								varFrequences[i, k]=0;
+					for (int i = 0; i<2; i++)
+						for (int k = 0; k<Length; k++)
+							varFrequences[i, k]=0;
 					///Составление массива частоты вхождений переменных
 					for (int i = 0; i<Length; i++)
 						for (int k = 0; k<trueReduced.Count; k++) {
@@ -178,7 +179,6 @@ namespace BOOM {
 							if (IntersectFalse(mostFrequencesVariables[i]))
 								mostFrequencesVariables.RemoveAt(i--);
 					}
-
 					return mostFrequencesVariables[rand.Next(mostFrequencesVariables.Count)];
 				}
 			}
@@ -220,12 +220,32 @@ namespace BOOM {
 			ExpansionBuffer=ExpansionBuffer.Distinct().ToList();
 		}
 
+
+
+		private string SolveCoveringProblem() {
+			List<string> trueReduced = True.ToList();
+			SortedList<string, int> implicantsCovering = new SortedList<string, int>();
+			foreach (var str in ExpansionBuffer)
+				implicantsCovering.Add(str, CoveringTerms(str));
+
+
+			int CoveringTerms(string implicant) {
+				int result = 0;
+				for (int i = 0; i<trueReduced.Count; i++) {
+
+				}
+				return result;
+			}
+			return "RWESULT";
+		}
+
 		public async Task<string> StartAsync() {//todo Асинхронный вызов
 			Console.WriteLine("Функция от {0} переменных с {1} определёнными мидтермами.", Length, True.Count+False.Count);
 			await Task.Run(() => CD_Search());
 			await Task.Run(() => ImplicantExpansion());
-
-			return "RESULT";
+			Console.WriteLine(ExpansionBuffer.Count);
+			string result = await Task.Run<string>(() => { return SolveCoveringProblem(); });
+			return result;
 		}
 
 	}
