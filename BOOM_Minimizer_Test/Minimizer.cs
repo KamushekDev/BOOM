@@ -10,8 +10,6 @@ namespace BOOM_Minimizer_Test {
 	public class Minimizer {
 		Random rand = new Random();
 
-		bool _DEBUG_ = !true;
-
 		public List<string> True { get; set; }
 		public List<string> False { get; set; }
 		public TernaryTree ImplicantBuffer { get; set; }
@@ -85,16 +83,6 @@ namespace BOOM_Minimizer_Test {
 
 				List<string> trueReduced = True.ToList();///сокращённый истинный набор
 
-				//------------------------------------------------------------------------------------------------------------------------------------------------Вывод в консоль
-				if (_DEBUG_) {
-					//Console.WriteLine(MostFrequenceVariable());
-					for (int i = 0; i<2; i++) {
-						for (int k = 0; k<Length; k++)
-							Console.Write(varFrequences[i, k]);
-						Console.WriteLine();
-					}
-				}
-				//------------------------------------------------------------------------------------------------------------------------------------------------Вывод в консоль
 				do {
 					t=new string(Enumerable.Repeat('-', Length).ToArray());
 					do {
@@ -192,12 +180,6 @@ namespace BOOM_Minimizer_Test {
 									mostFrequencesVariables.Add(implicant);
 									sb[k]='-';
 								}
-					//------------------------------------------------------------------------------------------------------------------------------------------------Вывод в консоль
-					if (_DEBUG_) {
-						foreach (string line in mostFrequencesVariables)
-							Console.WriteLine(line+" Intersect False? "+IntersectFalse(line));
-					}
-					//------------------------------------------------------------------------------------------------------------------------------------------------Вывод в консоль
 
 					if (countImplicants>0) {
 						for (int i = 0; i<mostFrequencesVariables.Count; i++)
