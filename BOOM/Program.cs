@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,15 +11,19 @@ namespace BOOM {
 
 			Console.Write("Номер теста: ");
 			int number = int.Parse(Console.ReadLine());
-
 			Minimizer minimizer = new Minimizer("../../Tests/Test"+number+".in");
+			
 
-			Console.WriteLine("Функция от {0} переменных с {1} определёнными мидтермами.", minimizer.Length, minimizer.True.Count+minimizer.False.Count);
+			Task<string> min = Task.Run(minimizer.StartAsync);
 
-			minimizer.CD_Search();
+			min.Wait();
+			string result = min.Result;
 
-			Console.WriteLine("Содержит {0} импликант.", minimizer.H.Count);
 
+
+
+			Console.ForegroundColor=ConsoleColor.Green;
+			Console.WriteLine(result);
 			Console.ReadKey();
 		}
 	}

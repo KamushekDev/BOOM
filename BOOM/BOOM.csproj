@@ -52,6 +52,8 @@
     <None Include="Tests\Test1.in" />
     <None Include="Tests\Test2.in" />
     <None Include="Tests\Test3.in" />
+    <None Include="Tests\Test4.in" />
+    <None Include="Tests\Test5.in" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
