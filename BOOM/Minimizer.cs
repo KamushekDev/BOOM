@@ -64,8 +64,9 @@ namespace BOOM {
 
 		private void CD_Search() {
 			long iteration = 0, ellapsedIterations = 0, lastChangeIteration = 0, implicantsCount = 0;
+			DateTime startTime=DateTime.Now;
 			while (true) {
-				if (ellapsedIterations==long.MaxValue||iteration==long.MaxValue)
+				if (ellapsedIterations==long.MaxValue||iteration==long.MaxValue||(DateTime.Now-startTime).TotalSeconds>30)
 					break;
 				iteration++; ellapsedIterations++;
 				CD_SearchOnce();
@@ -157,16 +158,40 @@ namespace BOOM {
 					List<string> mostFrequencesVariables = new List<string>(countMax); //Набор импликант
 					StringBuilder sb = new StringBuilder(new string(Enumerable.Repeat('-', Length).ToArray()));
 					int countImplicants = 0;
-					for (int i = 0; i<2; i++)
-						for (int k = 0; k<Length; k++)
-							if (varFrequences[i, k]==max) {
-								sb[k]=i.ToString()[0];
+					bool mutation = (rand.Next(0, 100)>96);
+					if (mutation) {
+						while (true) {
+							int start = rand.Next(Length);
+							if (varFrequences[1, start]>0) {
+								sb[start]='1';
 								string implicant = MergeTerms(t, sb.ToString());
 								if (!IntersectFalse(implicant))
 									countImplicants++;
 								mostFrequencesVariables.Add(implicant);
-								sb[k]='-';
+								sb[start]='-';
+								break;
+							} else if (varFrequences[0, start]>0) {
+								sb[start]='0';
+								string implicant = MergeTerms(t, sb.ToString());
+								if (!IntersectFalse(implicant))
+									countImplicants++;
+								mostFrequencesVariables.Add(implicant);
+								sb[start]='-';
+								break;
 							}
+							start=(start+1)%Length;
+						}
+					} else
+						for (int i = 0; i<2; i++)
+							for (int k = 0; k<Length; k++)
+								if (varFrequences[i, k]==max) {
+									sb[k]=i.ToString()[0];
+									string implicant = MergeTerms(t, sb.ToString());
+									if (!IntersectFalse(implicant))
+										countImplicants++;
+									mostFrequencesVariables.Add(implicant);
+									sb[k]='-';
+								}
 					//------------------------------------------------------------------------------------------------------------------------------------------------Вывод в консоль
 					if (_DEBUG_) {
 						foreach (string line in mostFrequencesVariables)
@@ -220,8 +245,6 @@ namespace BOOM {
 			ExpansionBuffer=ExpansionBuffer.Distinct().ToList();
 		}
 
-
-
 		private string SolveCoveringProblem() {
 			List<string> trueReduced = True.ToList();
 			SortedList<string, int> implicantsCovering = new SortedList<string, int>();
@@ -242,7 +265,7 @@ namespace BOOM {
 
 			StringBuilder result = new StringBuilder("");
 
-			for (int k=0;k<resultCovering.Count-1;k++){
+			for (int k = 0; k<resultCovering.Count-1; k++) {
 				result.Append(resultCovering[k]);
 				result.Append('+');
 			}
@@ -250,7 +273,7 @@ namespace BOOM {
 
 			return result.ToString();
 
-			void UpdateValues(){
+			void UpdateValues() {
 				for (int i = 0; i<implicantsCovering.Count; i++)
 					implicantsCovering[implicantsCovering.ElementAt(i).Key]=CoveringTerms(implicantsCovering.ElementAt(i).Key);
 			}
@@ -287,9 +310,29 @@ namespace BOOM {
 			Console.WriteLine("Функция от {0} переменных с {1} определёнными мидтермами.", Length, True.Count+False.Count);
 			await Task.Run(() => CD_Search());
 			await Task.Run(() => ImplicantExpansion());
-			Console.WriteLine(ExpansionBuffer.Count);
+			Console.WriteLine("Сгенерировано {0} прост{1} импликант{2}.", ExpansionBuffer.Count, EndingSimple(ExpansionBuffer.Count), EndingImplicant(ExpansionBuffer.Count));
 			string result = await Task.Run<string>(() => { return SolveCoveringProblem(); });
 			return result;
+
+			string EndingImplicant(long number) {
+				if (number%100>10&&number%100<20||number%10>=5&&number%10<=9||number%10==0)
+					return "";
+				if (number%10>=2&&number%10<=4)
+					return "ы";
+				if (number%10==1)
+					return "а";
+				return "";
+			}
+
+			string EndingSimple(long number) {
+				if (number%100>10&&number%100<20||number%10>=5&&number%10<=9||number%10==0)
+					return "ых";
+				if (number%10>=2&&number%10<=4)
+					return "ые";
+				if (number%10==1)
+					return "ая";
+				return "";
+			}
 		}
 
 	}
