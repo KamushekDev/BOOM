@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -21,45 +22,70 @@ namespace BOOM_Minimizer_Test {
 			lblFirstImplicants.Text="Сгенерировано первичных импликант: "+count;
 		}
 
+        public void UpdateVC(int count, int countTerms)
+        {
+            lblVariablesCount.Text = String.Format("Количество переменных: {0}. Число импликант: {1}",count, countTerms);
+        }
+
 		public void UpdatePI(int count) {
 			lblPrimeImplicants.Text="Сгенерировано простых импликант: "+count;
 		}
 
-		private void Form1_DragDrop(object sender, DragEventArgs e) {
-			if (!isWorking)
-				if (e.Data.GetDataPresent(DataFormats.FileDrop) && e.Effect == DragDropEffects.Move) {
-					string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-					Minimizer expression = new Minimizer(files[0], this, 20);
-					ellapsedTime=TimeSpan.Zero;
-					timer1.Start();
-					isWorking=true;
-					lblFileName.Text=((string[])e.Data.GetData(DataFormats.FileDrop))[0];
-					UpdateFI(0);
-					UpdatePI(0);
-					lblResult.Text="Ответ: -";
-					lblTime.Text=ellapsedTime.ToString(@"hh\:mm\:ss");
+		private void StartTest(object sender, MouseEventArgs e) {
+			if (!isWorking) {
+				string filePath = "../../Tests/"+(string)lbTests.SelectedItem;
+				Minimizer expression = new Minimizer(filePath, this, tbCDTime.Value, cbMultiExpansion.Checked);
+				ellapsedTime=TimeSpan.Zero;
+				timer1.Start();
+				isWorking=true;
+				lblFileName.Text=(string)lbTests.SelectedItem;
+				UpdateFI(0);
+				UpdateVC(0,0);
+				UpdatePI(0);
+				tbAnswer.Text="";
+				lblTime.Text=ellapsedTime.ToString(@"hh\:mm\:ss");
 
-					Task.Run(() => {
-						string result = expression.StartAsync().Result;
-						timer1.Stop();
-						isWorking=false;
-						this.Invoke((Action)delegate {
-							lblResult.Text="Ответ: "+result;
-						});
+				Task.Run(() => {
+					string result = expression.StartAsync().Result;
+					timer1.Stop();
+					isWorking=false;
+					this.Invoke((Action)delegate {
+						tbAnswer.Text=result;
 					});
-
-				}
-		}
-
-		private void Form1_DragEnter(object sender, DragEventArgs e) {
-			if (e.Data.GetDataPresent(DataFormats.FileDrop) &&
-					((e.AllowedEffect & DragDropEffects.Move) == DragDropEffects.Move))
-				e.Effect=DragDropEffects.Move;
+				});
+			}
 		}
 
 		private void timer1_Tick(object sender, EventArgs e) {
 			ellapsedTime=ellapsedTime.Add(new TimeSpan(0, 0, 1));
 			lblTime.Text=ellapsedTime.ToString(@"hh\:mm\:ss");
+		}
+
+		private void tbCDTime_Scroll(object sender, EventArgs e) {
+			lblTBTime.Text=tbCDTime.Value+" секунд.";
+		}
+
+		private void LoadFiles() {
+
+			string[] tests = (from i in Directory.EnumerateFiles("../../Tests", "*.in", SearchOption.AllDirectories) select i.Split('\\').Last()).ToArray();
+
+			lbTests.Items.AddRange(tests);
+		}
+
+		private void Form1_Load(object sender, EventArgs e) {
+			lblTBTime.Location=new Point(tbCDTime.Location.X, lblTBTime.Location.Y);
+			lblTBTime.Width=tbCDTime.Width;
+			UpdateVC(0, 0);
+			LoadFiles();
+		}
+
+		private void lbTests_SelectedValueChanged(object sender, EventArgs e) {
+			string[] info = new string[3];
+			StreamReader sr = new StreamReader("../../Tests/"+lbTests.SelectedItem);
+			lblFunction.Text="Функция: "+sr.ReadLine();
+			lblVariables.Text="Количество переменных: "+sr.ReadLine();
+			lblSost.Text="Количество важных состояний: "+sr.ReadLine();
+			sr.Close();
 		}
 	}
 }

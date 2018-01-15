@@ -120,16 +120,4 @@
   <metadata name="timer1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
-  <data name="label1.Text" xml:space="preserve">
-    <value>Тестовые файлы содержат следующие функции (&lt;кол-во состояний&gt;x&lt;кол-во переменных&gt;):
-Test1- xy
-Test2- x|y
-Test3- (xy)|(yz)|(!xz)
-Test4- (xyz)|(x!yz)|(!xz)
-Test5- Случайная проблема (4х3)
-Test6- Случайная проблема (8х3)
-Test7- Случайная проблема (10х10)
-Test8- Случайная проблема (30х30)
-Test9- Случайная проблема (60х50)</value>
-  </data>
 </root>
