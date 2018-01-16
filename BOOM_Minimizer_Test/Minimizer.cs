@@ -11,6 +11,7 @@ namespace BOOM_Minimizer_Test {
 		Random rand = new Random();
 
 		private int secondsForCDSearch = 30;
+		private bool multyExpanding = false;
 
 		public List<string> True { get; set; }
 		public List<string> False { get; set; }
@@ -28,15 +29,16 @@ namespace BOOM_Minimizer_Test {
 
 		private void ReadFunction(string path) {
 			int length = 0;
-			foreach (string line in File.ReadAllLines(path)) {
-				if (length != 0 && length != line.Length - 2)
+			string[] lines = File.ReadAllLines(path);
+			for (int i = 4; i<lines.Length; i++) {
+				if (length != 0 && length != lines[i].Length - 2)
 					throw new ArgumentException("Ошибка во входных данных.");
 				else
-					length = line.Length - 2;
-				if (line[0] == '0')
-					False.Add(line.Substring(2));
-				else if (line[0] == '1')
-					True.Add(line.Substring(2));
+					length = lines[i].Length - 2;
+				if (lines[i][0] == '0')
+					False.Add(lines[i].Substring(2));
+				else if (lines[i][0] == '1')
+					True.Add(lines[i].Substring(2));
 			}
 			Length = length;
 		}
@@ -199,7 +201,7 @@ namespace BOOM_Minimizer_Test {
 			}
 		}
 
-		public Minimizer(string pathToFile, Form1 _mainForm, int seconds) {
+		public Minimizer(string pathToFile, Form1 _mainForm, int seconds, bool multyExpanding) {
 			True = new List<string>();
 			False = new List<string>();
 			ReadFunction(pathToFile);
@@ -207,6 +209,46 @@ namespace BOOM_Minimizer_Test {
 			ExpansionBuffer=new List<string>();
 			this.mainForm=_mainForm;
 			secondsForCDSearch=seconds;
+			this.multyExpanding=multyExpanding;
+		}
+
+		private void MultiImplicantExpansion() {
+
+			List<string> PrimeImplicants = new List<string>();
+
+			for (int i = 0; i<ExpansionBuffer.Count; i++) {
+				for (int j = 0; j<Length; j++)
+					PrimeImplicants.Add(Expand(j, ExpansionBuffer[i]));
+			}
+
+			ExpansionBuffer=PrimeImplicants.Distinct().ToList();
+
+			string Expand(int start, string implicant) {
+				StringBuilder sb = new StringBuilder(implicant);
+				string result = String.Empty;
+				int EllapsedChangings = 0;
+				int position = start;
+				do {
+					if (sb[position]!='-') {
+						char buffer = sb[position];
+						sb[position]='-';
+						if (IntersectFalse(sb.ToString()))
+							sb[position]=buffer;
+						else {
+							EllapsedChangings++;
+							result=sb.ToString();
+						}
+					}
+					position=(position+1)%Length;
+					if (position==(start-1+Length)%Length)
+						if (EllapsedChangings==0)
+							break;
+						else
+							EllapsedChangings=0;
+				} while (true);
+				return (result!="") ? result : implicant;
+			}
+
 		}
 
 		private void ImplicantExpansion() {//Последовательное расширение
@@ -253,6 +295,8 @@ namespace BOOM_Minimizer_Test {
 						UpdateValues();
 					}
 				}
+				if (implicantsCovering.Count==0)
+					return "Недостаточно импликант было сгенерировано.";
 			} while (trueReduced.Count>0);
 
 			StringBuilder result = new StringBuilder("");
@@ -302,7 +346,10 @@ namespace BOOM_Minimizer_Test {
 			Console.WriteLine("Функция от {0} переменных с {1} определёнными мидтермами.", Length, True.Count+False.Count);
 			await Task.Run(() => CD_Search());
 			mainForm.Invoke((Action)delegate { mainForm.UpdateFI(ExpansionBuffer.Count); });
-			await Task.Run(() => ImplicantExpansion());
+			if (multyExpanding)
+				await Task.Run(() => MultiImplicantExpansion());
+			else
+				await Task.Run(() => ImplicantExpansion());
 			mainForm.Invoke((Action)delegate { mainForm.UpdatePI(ExpansionBuffer.Count); });
 			string result = await Task.Run<string>(() => { return SolveCoveringProblem(); });
 			return result;
