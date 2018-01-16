@@ -22,6 +22,11 @@ namespace BOOM_Minimizer_Test {
 			lblFirstImplicants.Text="Сгенерировано первичных импликант: "+count;
 		}
 
+        public void UpdateVC(int count, int countTerms)
+        {
+            lblVariablesCount.Text = String.Format("Количество переменных: {0}. Число импликант: {1}",count, countTerms);
+        }
+
 		public void UpdatePI(int count) {
 			lblPrimeImplicants.Text="Сгенерировано простых импликант: "+count;
 		}
@@ -35,6 +40,7 @@ namespace BOOM_Minimizer_Test {
 				isWorking=true;
 				lblFileName.Text=(string)lbTests.SelectedItem;
 				UpdateFI(0);
+				UpdateVC(0,0);
 				UpdatePI(0);
 				tbAnswer.Text="";
 				lblTime.Text=ellapsedTime.ToString(@"hh\:mm\:ss");
@@ -69,6 +75,7 @@ namespace BOOM_Minimizer_Test {
 		private void Form1_Load(object sender, EventArgs e) {
 			lblTBTime.Location=new Point(tbCDTime.Location.X, lblTBTime.Location.Y);
 			lblTBTime.Width=tbCDTime.Width;
+			UpdateVC(0, 0);
 			LoadFiles();
 		}
 
